@@ -1,0 +1,23 @@
+name: Facebook Auto-Post Cron
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Call Cron Endpoint
+        env:
+          CRON_URL: ${{ secrets.RAILWAY_URL }}/api/cron
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl -X POST $CRON_URL \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -d '{}' \
+            -v
+        continue-on-error: true
