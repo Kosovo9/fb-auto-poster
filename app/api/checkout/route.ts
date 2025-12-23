@@ -1,34 +1,33 @@
-import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { NextRequest, NextResponse } from 'next/server';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder');
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+    apiVersion: '2023-10-16' as any,
+});
 
-export async function POST() {
+export async function POST(req: NextRequest) {
     try {
+        const { priceId, userId } = await req.json();
+
         const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
             line_items: [
                 {
-                    price_data: {
-                        currency: 'usd',
-                        product_data: {
-                            name: 'Facebook Auto-Poster PRO',
-                            description: 'Unlimited posts, AI replies, and Analytics',
-                        },
-                        unit_amount: 1999, // $19.99
-                    },
+                    price: priceId, // ej: price_1234567890
                     quantity: 1,
                 },
             ],
-            mode: 'payment',
-            success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://frolicking-figolla-368d89.netlify.app'}/?success=true`,
-            cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://frolicking-figolla-368d89.netlify.app'}/?canceled=true`,
+            mode: 'subscription',
+            success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success`,
+            cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+            client_reference_id: userId,
         });
 
-        return NextResponse.json({ url: session.url });
+        return NextResponse.json({ sessionId: session.id });
     } catch (error) {
-        console.error('Stripe error:', error);
+        console.error('Checkout error:', error);
         return NextResponse.json(
-            { error: 'Error creating checkout session' },
+            { error: 'Error creando sesión' },
             { status: 500 }
         );
     }

@@ -13,17 +13,8 @@ export async function analyzeComment(
     comment: string,
     vehicleInfo: { name: string; price: string; year: string; whatsapp: string }
 ): Promise<CommentAnalysis> {
-    if (!process.env.GOOGLE_AI_API_KEY) {
-        return {
-            isLegit: false,
-            score: 0,
-            type: "other",
-            suggestedResponse: "AI Key missing",
-        };
-    }
-
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // Updated model name
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
         const prompt = `Analiza este comentario en un grupo de venta de autos:
 COMENTARIO: "${comment}"
@@ -39,16 +30,17 @@ TAREA:
 ¿Qué tipo de pregunta es? (price/features/location/contact/spam/other)
 Genera una respuesta automática amable y profesional
 
-RESPONDE EN JSON PURO:
+RESPONDE EN JSON:
 {
-"isLegit": true/false,
-"score": 85,
-"type": "price",
-"suggestedResponse": "Tu respuesta aquí"
+  "isLegit": true/false,
+  "score": 85,
+  "type": "price",
+  "suggestedResponse": "Tu respuesta aquí"
 }`;
 
         const result = await model.generateContent(prompt);
-        const text = result.response.text();
+        const response = await result.response;
+        const text = response.text();
 
         // Parse JSON response
         const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -73,25 +65,22 @@ RESPONDE EN JSON PURO:
     }
 }
 
-// Simple AI response generator for posts (not comments)
-export async function generateAIResponse(context: string, tone: string = 'casual'): Promise<string> {
-    if (!process.env.GOOGLE_AI_API_KEY) {
-        return context; // Return original if no API key
-    }
-
+// Webhook para recibir comentarios de Facebook
+export async function handleFacebookCommentWebhook(
+    comment: string,
+    postId: string,
+    vehicleInfo: any
+): Promise<void> {
     try {
-        const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const analysis = await analyzeComment(comment, vehicleInfo);
 
-        const prompt = `Mejora este mensaje para Facebook de manera ${tone}. Hazlo más atractivo y engagement-friendly. Mantén el mensaje corto (máximo 2-3 líneas). Solo responde con el mensaje mejorado, sin explicaciones:
-
-"${context}"`;
-
-        const result = await model.generateContent(prompt);
-        const text = result.response.text();
-        return text.trim() || context;
+        // Solo responde si es cliente potencial (score > 60)
+        if (analysis.score > 60) {
+            // En versión 2: publicar respuesta en Facebook automático
+            // Por ahora, guardar en BD para revisión manual
+            console.log("Auto-response:", analysis.suggestedResponse);
+        }
     } catch (error) {
-        console.error("AI Response error:", error);
-        return context; // Return original on error
+        console.error("Webhook handler error:", error);
     }
 }

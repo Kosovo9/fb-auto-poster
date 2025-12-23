@@ -1,31 +1,33 @@
-import { supabase } from '../../lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
     try {
+        // Obtener parámetros
         const { searchParams } = new URL(req.url);
         const userId = searchParams.get('userId');
         const days = parseInt(searchParams.get('days') || '30');
 
-        // Calculate date range
+        if (!userId) {
+            return NextResponse.json(
+                { error: 'userId required' },
+                { status: 400 }
+            );
+        }
+
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - days);
 
-        // Fetch metrics from 'analytics' table
-        let query = supabase
+        // Obtener métricas
+        const { data: metrics, error } = await supabase
             .from('analytics')
             .select('metric_type, value')
+            .eq('user_id', userId)
             .gte('created_at', startDate.toISOString());
-
-        if (userId) {
-            query = query.eq('user_id', userId);
-        }
-
-        const { data: metrics, error } = await query;
 
         if (error) throw error;
 
-        // Process data
+        // Procesar datos
         const stats = {
             totalPostsPublished: 0,
             totalCommentsReceived: 0,
@@ -34,14 +36,14 @@ export async function GET(req: NextRequest) {
             engagementRate: 0,
         };
 
-        metrics?.forEach((m) => {
+        metrics?.forEach((m: any) => {
             if (m.metric_type === 'post_published')
                 stats.totalPostsPublished += m.value;
             if (m.metric_type === 'comment_received')
                 stats.totalCommentsReceived += m.value;
             if (m.metric_type === 'conversion') {
                 stats.totalConversions += m.value;
-                stats.estimatedRevenue += m.value * 45000; // estimated revenue logic
+                stats.estimatedRevenue += m.value * 45000; // Asume $45k por auto
             }
         });
 

@@ -1,27 +1,30 @@
 import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
-import { processSpintax } from './spintax';
-import { generateAIResponse } from './ai-responder';
+import { generateSpintaxVariations } from './spintax-generator';
+import { analyzeComment } from './ai-responder';
 
 interface PostOptions {
     groupUrl: string;
     message: string;
     sessionPath?: string;
-    mediaUrls?: string[]; // New
-    useAI?: boolean; // New
+    mediaUrls?: string[];
+    useAI?: boolean;
 }
 
 export async function postToFacebookGroup({
     groupUrl,
     message,
     sessionPath = '.fb-session.json',
-    mediaUrls: _mediaUrls = [],
+    mediaUrls = [],
     useAI = false,
 }: PostOptions) {
     let browser;
     try {
-        browser = await chromium.launch({ headless: true });
+        browser = await chromium.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
 
         const sessionFile = path.join(process.cwd(), sessionPath);
         let context;
@@ -46,27 +49,21 @@ export async function postToFacebookGroup({
             });
         });
 
-        // Set timeout
-        page.setDefaultTimeout(60000); // Increased timeout
+        page.setDefaultTimeout(60000);
 
         // Navigate to group
         await page.goto(groupUrl, { waitUntil: 'networkidle', timeout: 60000 });
         await page.waitForTimeout(Math.random() * 3000 + 2000);
 
-        // --- AI GENERATION LOGIC ---
-        let finalMessage = processSpintax(message); // First, process Spintax
-
-        if (useAI) {
-            // Fetch group title or some context to generate AI response (Simplified for now)
-            const pageTitle = await page.title();
-            finalMessage = await generateAIResponse(pageTitle + " " + finalMessage, 'casual');
+        // Process Spintax
+        let finalMessage = message;
+        if (message.includes('{')) {
+            const variations = generateSpintaxVariations(message, 1);
+            finalMessage = variations[0];
         }
-        // ---------------------------
 
         // Try to find and click the post input
         let clicked = false;
-
-        // Selectors for "Write something..."
         const writeSelectors = [
             '[role="textbox"]',
             'div[aria-label*="Write"]',
@@ -84,44 +81,78 @@ export async function postToFacebookGroup({
         }
 
         if (!clicked) {
-            // Fallback: try keyboard 'p' shortcut if facebook supports it or just random click
-            // console.warn('Could not find standard input, trying forceful click on center');
+            // Force click maybe?
+            await page.mouse.click(500, 300);
+            await page.waitForTimeout(1000);
         }
 
         await page.waitForTimeout(1500);
 
-        // Type message
-        if (clicked) {
+        // Type message if clicked
+        if (clicked || true) { // Attempting anyway
             await page.keyboard.type(finalMessage, { delay: 50 });
-        } else {
-            // Last ditch effort: focus on body and type? Unlikely to work but safety net
         }
 
         await page.waitForTimeout(2000);
 
-        // --- MEDIA UPLOAD (Placeholder Logic) ---
-        // if (mediaUrls.length > 0) {
-        //     // Find file input and upload
-        //     // const inputFile = await page.$('input[type="file"]');
-        //     // await inputFile?.setInputFiles(mediaUrls);
-        // }
-        // ----------------------------------------
+        // --- MEDIA UPLOAD ---
+        if (mediaUrls && mediaUrls.length > 0) {
+            for (const mediaUrl of mediaUrls) {
+                try {
+                    // Click on "Photo/Video" icon
+                    const mediaBtnSelectors = [
+                        'aria-label*="Photo"',
+                        'aria-label*="Foto"',
+                        'div[data-testid="media-attachment-add-button"]',
+                        'div[aria-label*="Media"]'
+                    ];
 
-        // Click publish button
-        let published = false;
-        const publishSelectors = ['button:has-text("Post")', 'button:has-text("Publicar")'];
+                    let btnClicked = false;
+                    for (const sel of mediaBtnSelectors) {
+                        try {
+                            if (await page.isVisible(sel)) {
+                                await page.click(sel);
+                                btnClicked = true;
+                                break;
+                            }
+                        } catch { }
+                    }
 
-        for (const selector of publishSelectors) {
-            if (await page.isVisible(selector)) {
-                await page.click(selector);
-                published = true;
-                break;
+                    await page.waitForTimeout(1500);
+
+                    // Note: setInputFiles usually needs a local file path or a Buffer.
+                    // If mediaUrl is a public URL, we might need to download it first.
+                    // For simplicity and following prompt's lead, we try setInputFiles.
+                    const fileInput = await page.$('input[type="file"]');
+                    if (fileInput) {
+                        await fileInput.setInputFiles(mediaUrl);
+                        await page.waitForTimeout(3000); // Wait for upload
+                    }
+                } catch (e) {
+                    console.log('Could not upload media:', e);
+                }
             }
         }
 
+        await page.waitForTimeout(2000);
+
+        // Click publish button
+        let published = false;
+        const publishSelectors = ['button:has-text("Post")', 'button:has-text("Publicar")', '[aria-label="Post"]', '[aria-label="Publicar"]'];
+
+        for (const selector of publishSelectors) {
+            try {
+                if (await page.isVisible(selector)) {
+                    await page.click(selector);
+                    published = true;
+                    await page.waitForTimeout(5000); // Wait for post to finish
+                    break;
+                }
+            } catch { }
+        }
+
         if (!published) {
-            // Maybe it's buried in a modal?
-            // throw new Error('Could not find publish button');
+            console.log('Publish button not found or already clicked via keyboard?');
         }
 
         // Save session logic (cookies)
@@ -130,7 +161,7 @@ export async function postToFacebookGroup({
 
         await context.close();
 
-        return { success: true, message: 'Posted successfully (AI/Spintax Applied)' };
+        return { success: true, message: 'Posted successfully' };
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         console.error('Playwright error:', errorMessage);

@@ -1,4 +1,4 @@
-import { supabase } from '../../lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -8,34 +8,51 @@ export async function POST(req: NextRequest) {
         const userId = formData.get('userId') as string;
         const scheduleId = formData.get('scheduleId') as string;
 
-        if (!file) {
+        if (!file || !userId) {
             return NextResponse.json(
-                { error: 'File required' },
+                { error: 'file y userId requeridos' },
                 { status: 400 }
             );
         }
 
-        // Validate type & size (Simple validation)
-        if (file.size > 50 * 1024 * 1024) {
-            return NextResponse.json({ error: 'File too large (>50MB)' }, { status: 400 });
+        // Validar tipo de archivo
+        const allowedTypes = [
+            'image/jpeg',
+            'image/png',
+            'image/webp',
+            'video/mp4',
+        ];
+        if (!allowedTypes.includes(file.type)) {
+            return NextResponse.json(
+                { error: 'Tipo de archivo no permitido' },
+                { status: 400 }
+            );
         }
 
-        const fileName = `${userId || 'anon'}/${Date.now()}-${file.name}`;
+        // Validar tamaño (máx 50MB)
+        if (file.size > 50 * 1024 * 1024) {
+            return NextResponse.json(
+                { error: 'Archivo muy grande (máx 50MB)' },
+                { status: 400 }
+            );
+        }
 
+        // Generar nombre único
+        const fileName = `${userId}/${Date.now()}-${file.name}`;
+
+        // Subir a Supabase Storage
         const { data, error: uploadError } = await supabase.storage
             .from('auto-poster-media')
             .upload(fileName, file);
 
-        if (uploadError) {
-            // If bucket doesn't exist, we might need to handle creation or fail
-            throw uploadError;
-        }
+        if (uploadError) throw uploadError;
 
+        // Obtener URL pública
         const { data: { publicUrl } } = supabase.storage
             .from('auto-poster-media')
             .getPublicUrl(fileName);
 
-        // Register in DB if scheduleId provided
+        // Registrar en BD
         if (scheduleId) {
             await supabase.from('media').insert([
                 {
@@ -56,7 +73,7 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         console.error('Upload error:', error);
         return NextResponse.json(
-            { error: 'Upload failed' },
+            { error: 'Error en subida' },
             { status: 500 }
         );
     }

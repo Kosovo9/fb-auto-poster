@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 
 interface MediaUploaderProps {
     onUpload: (url: string) => void;
-    userId?: string;
+    userId: string;
 }
 
 export function MediaUploader({ onUpload, userId }: MediaUploaderProps) {
@@ -18,10 +17,10 @@ export function MediaUploader({ onUpload, userId }: MediaUploaderProps) {
 
         setUploading(true);
 
-        for (const file of files) {
+        for (const file of Array.from(files)) {
             const formData = new FormData();
             formData.append('file', file);
-            if (userId) formData.append('userId', userId);
+            formData.append('userId', userId);
 
             try {
                 const res = await fetch('/api/upload', {
@@ -34,7 +33,7 @@ export function MediaUploader({ onUpload, userId }: MediaUploaderProps) {
                     setUploadedFiles((prev) => [...prev, data.url]);
                     onUpload(data.url);
                 } else {
-                    console.error("Upload error:", data.error);
+                    console.error('Upload failed:', data.error);
                 }
             } catch (error) {
                 console.error('Upload failed:', error);
@@ -45,49 +44,44 @@ export function MediaUploader({ onUpload, userId }: MediaUploaderProps) {
     }
 
     return (
-        <div className="border-2 border-dashed border-slate-600 rounded-lg p-6 hover:border-slate-500 transition-colors bg-slate-700/30">
-            <label className="block cursor-pointer">
-                <span className="sr-only">Choose file</span>
-                <input
-                    type="file"
-                    multiple
-                    accept="image/*,video/*"
-                    onChange={handleUpload}
-                    disabled={uploading}
-                    className="block w-full text-sm text-slate-400
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-full file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-blue-600 file:text-white
-                  hover:file:bg-blue-700"
-                />
-            </label>
-
-            {uploading && <p className="text-sm text-yellow-400 mt-2">Uploading...</p>}
-
-            {!uploading && uploadedFiles.length === 0 && (
-                <p className="text-sm text-slate-400 mt-2">
-                    Soporta: JPEG, PNG, WebP, MP4 (máx 50MB)
+        <div className="border-2 border-dashed border-slate-600 rounded-xl p-6 bg-slate-800/50 hover:border-blue-500/50 transition-colors group">
+            <input
+                type="file"
+                multiple
+                accept="image/*,video/*"
+                onChange={handleUpload}
+                disabled={uploading}
+                className="block w-full text-sm text-slate-400
+          file:mr-4 file:py-2 file:px-4
+          file:rounded-full file:border-0
+          file:text-sm file:font-semibold
+          file:bg-blue-500 file:text-white
+          hover:file:bg-blue-600
+          cursor-pointer disabled:opacity-50"
+            />
+            <div className="mt-4 flex items-center justify-between">
+                <p className="text-xs text-slate-500 uppercase font-medium">
+                    Formatos: JPEG, PNG, WebP, MP4 (máx 50MB)
                 </p>
-            )}
+                {uploading && (
+                    <span className="text-xs text-blue-400 animate-pulse font-bold">Subiendo archivos...</span>
+                )}
+            </div>
 
             {uploadedFiles.length > 0 && (
-                <div className="mt-4">
-                    <p className="text-sm font-bold mb-2 text-slate-300">Archivos listos:</p>
-                    <div className="flex gap-2 flex-wrap">
+                <div className="mt-6 border-t border-slate-700 pt-4">
+                    <p className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        Archivos listos para postear:
+                    </p>
+                    <div className="flex gap-3 flex-wrap">
                         {uploadedFiles.map((url, i) => (
-                            <div key={i} className="relative group">
-                                <Image
+                            <div key={i} className="relative group/item">
+                                <img
                                     src={url}
                                     alt="Uploaded"
-                                    width={80}
-                                    height={80}
-                                    className="w-20 h-20 object-cover rounded border border-slate-600"
-                                    unoptimized
+                                    className="w-24 h-24 object-cover rounded-lg border border-slate-700 shadow-xl"
                                 />
-                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
-                                    <span className="text-green-400 text-xs">✓</span>
-                                </div>
                             </div>
                         ))}
                     </div>

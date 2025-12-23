@@ -40,6 +40,15 @@ export async function POST(req: NextRequest) {
                         .update({ status: 'posted' })
                         .eq('id', schedule.id);
 
+                    // --- LOG ANALYTICS ---
+                    await supabase.from('analytics').insert({
+                        user_id: schedule.user_id, // Ensure user_id exists in schedules or groups
+                        metric_type: 'post_published',
+                        value: 1,
+                        metadata: { group_name: schedule.groups.name }
+                    });
+                    // --------------------
+
                     await supabase.from('post_logs').insert({
                         schedule_id: schedule.id,
                         group_id: schedule.group_id,
