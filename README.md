@@ -2,12 +2,14 @@
 
 Sistema automatizado para postear en múltiples grupos de Facebook sin esfuerzo.
 
+- **Demo en vivo:** [frolicking-figolla-368d89.netlify.app](https://frolicking-figolla-368d89.netlify.app)
+
 ## Stack
 - **Frontend**: Next.js 14 + React + Tailwind CSS
 - **Backend**: Next.js API Routes
 - **Database**: Supabase (PostgreSQL)
 - **Automation**: Playwright + GitHub Actions
-- **Hosting**: Railway
+- **Hosting**: Netlify
 
 ## Características
 ✅ Agregar múltiples grupos de Facebook
