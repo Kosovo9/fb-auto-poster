@@ -1,13 +1,127 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Analytics } from './components/Analytics';
 import { MediaUploader } from './components/MediaUploader';
 import { generateSpintaxVariations } from './lib/spintax-generator';
 
-// ... (rest of imports)
+interface Group {
+    id: string;
+    url: string;
+    name: string;
+    created_at: string;
+}
+
+interface Schedule {
+    id: string;
+    group_id: string;
+    message: string;
+    scheduled_time: string;
+    status: string;
+    groups?: Group;
+    use_ai?: boolean;
+    media_url?: string;
+}
 
 export default function Dashboard() {
-    // ... (state defs)
+    const [groups, setGroups] = useState<Group[]>([]);
+    const [schedules, setSchedules] = useState<Schedule[]>([]);
+    const [groupUrl, setGroupUrl] = useState('');
+    const [groupName, setGroupName] = useState('');
+    const [selectedGroup, setSelectedGroup] = useState('');
+    const [message, setMessage] = useState('');
+    const [scheduledTime, setScheduledTime] = useState('');
+    const [useAI, setUseAI] = useState(false);
+    const [mediaUrls, setMediaUrls] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [analytics, setAnalytics] = useState({ total_posts: 0, success_rate: 0, pending: 0 });
     const [spintaxTemplate, setSpintaxTemplate] = useState('');
-    // ...
+
+    useEffect(() => {
+        fetchGroups();
+        fetchSchedules();
+        fetchAnalytics();
+        const interval = setInterval(() => {
+            fetchSchedules();
+            fetchAnalytics();
+        }, 30000);
+        return () => clearInterval(interval);
+    }, []);
+
+    async function fetchAnalytics() {
+        try {
+            const res = await fetch('/api/analytics');
+            if (res.ok) {
+                const data = await res.json();
+                setAnalytics(data);
+            }
+        } catch (e) {
+            console.error('Error fetching analytics');
+        }
+    }
+
+    async function handleUpgrade() {
+        try {
+            setLoading(true);
+            const res = await fetch('/api/checkout', { method: 'POST' });
+            const data = await res.json();
+            if (data.url) window.location.href = data.url;
+        } catch (error) {
+            setError('Error initiating checkout');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function fetchGroups() {
+        try {
+            const res = await fetch('/api/groups');
+            if (!res.ok) throw new Error('Failed to fetch groups');
+            const data = await res.json();
+            setGroups(data || []);
+        } catch (err) {
+            setError('Error fetching groups');
+        }
+    }
+
+    async function fetchSchedules() {
+        try {
+            const res = await fetch('/api/schedules');
+            if (!res.ok) throw new Error('Failed to fetch schedules');
+            const data = await res.json();
+            setSchedules(data || []);
+        } catch (err) {
+            setError('Error fetching schedules');
+        }
+    }
+
+    async function addGroup(e: React.FormEvent) {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+        setSuccess('');
+
+        try {
+            const res = await fetch('/api/groups', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: groupUrl, name: groupName }),
+            });
+
+            if (!res.ok) throw new Error('Failed to add group');
+
+            setGroupUrl('');
+            setGroupName('');
+            setSuccess('✅ Grupo agregado exitosamente');
+            fetchGroups();
+        } catch (err) {
+            setError('❌ Error al agregar grupo');
+        } finally {
+            setLoading(false);
+        }
+    }
 
     // Updated schedulePost to handle Spintax
     async function schedulePost(e: React.FormEvent) {
