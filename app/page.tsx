@@ -177,7 +177,7 @@ export default function LandingPage() {
                                         <p className="text-blue-400 text-xs font-bold uppercase tracking-widest">{t.role}</p>
                                     </div>
                                 </div>
-                                <p className="text-slate-400 font-medium leading-relaxed italic">"{t.text}"</p>
+                                \u003cp className=\"text-slate-400 font-medium leading-relaxed italic\"\u003e{t.text}\u003c/p\u003e
                             </div>
                         ))}
                     </div>
