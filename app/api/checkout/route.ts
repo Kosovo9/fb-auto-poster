@@ -7,19 +7,36 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 
 export async function POST(req: NextRequest) {
     try {
-        const { priceId, userId } = await req.json();
+        const userId = req.headers.get('x-user-id');
+        const { priceId } = await req.json();
+
+        if (!userId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        // Mapping or fallbacks to env vars
+        const validPrices = [
+            process.env.STRIPE_PRICE_PROFESSIONAL || 'price_professional',
+            process.env.STRIPE_PRICE_BUSINESS || 'price_business',
+            process.env.STRIPE_PRICE_ENTERPRISE || 'price_enterprise'
+        ];
+
+        // For flexibility, if it matches a placeholder name we also allow it during testing
+        const finalPriceId = priceId.startsWith('price_') ? priceId :
+            (priceId === 'professional' ? validPrices[0] :
+                priceId === 'business' ? validPrices[1] : validPrices[2]);
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: [
                 {
-                    price: priceId, // ej: price_1234567890
+                    price: finalPriceId,
                     quantity: 1,
                 },
             ],
             mode: 'subscription',
-            success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success`,
-            cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+            success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?status=success`,
+            cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?status=cancel`,
             client_reference_id: userId,
         });
 
@@ -27,7 +44,7 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         console.error('Checkout error:', error);
         return NextResponse.json(
-            { error: 'Error creando sesión' },
+            { error: 'Error creando sesión de pago' },
             { status: 500 }
         );
     }

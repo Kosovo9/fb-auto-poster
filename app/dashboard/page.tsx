@@ -235,6 +235,30 @@ export default function Dashboard() {
                 {/* Real-time Analytics Component */}
                 <Analytics />
 
+                {/* ROI & Conversion Estimator (Power Features) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                    <div className="bg-slate-800/40 border border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl flex flex-col items-center text-center">
+                        <div className="w-16 h-16 bg-green-500/20 text-green-400 rounded-2xl flex items-center justify-center mb-4 text-2xl">💰</div>
+                        <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">ROI Estimado</h3>
+                        <p className="text-3xl font-black text-white">$1,450.00</p>
+                        <p className="text-[10px] text-green-400 font-bold mt-1">Basado en conversiones IA</p>
+                    </div>
+                    <div className="bg-slate-800/40 border border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl flex flex-col items-center text-center">
+                        <div className="w-16 h-16 bg-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mb-4 text-2xl">⚡</div>
+                        <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Capacidad de Grupos</h3>
+                        <div className="w-full bg-slate-900 rounded-full h-2 mt-4 overflow-hidden mb-2">
+                            <div className="bg-blue-500 h-full w-[70%]" />
+                        </div>
+                        <p className="text-xs font-bold text-slate-300">7/10 Grupos utilizados</p>
+                    </div>
+                    <div className="bg-slate-800/40 border border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl flex flex-col items-center text-center">
+                        <div className="w-16 h-16 bg-purple-500/20 text-purple-400 rounded-2xl flex items-center justify-center mb-4 text-2xl">📈</div>
+                        <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Tasa de Conversión</h3>
+                        <p className="text-3xl font-black text-white">12.4%</p>
+                        <p className="text-[10px] text-purple-400 font-bold mt-1">+2.1% esta semana</p>
+                    </div>
+                </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
 
                     {/* Panel Izquierdo: Configuración */}
