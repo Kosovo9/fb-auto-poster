@@ -30,6 +30,8 @@ export async function POST(req: NextRequest) {
                 const result = await postToFacebookGroup({
                     groupUrl: schedule.groups.url,
                     message: schedule.message,
+                    useAI: schedule.use_ai,
+                    mediaUrls: schedule.media_url ? [schedule.media_url] : [],
                 });
 
                 if (result.success) {

@@ -16,6 +16,8 @@ interface Schedule {
     scheduled_time: string;
     status: string;
     groups?: Group;
+    use_ai?: boolean;
+    media_url?: string;
 }
 
 export default function Dashboard() {
@@ -26,6 +28,8 @@ export default function Dashboard() {
     const [selectedGroup, setSelectedGroup] = useState('');
     const [message, setMessage] = useState('');
     const [scheduledTime, setScheduledTime] = useState('');
+    const [useAI, setUseAI] = useState(false);
+    const [mediaUrls, setMediaUrls] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -99,6 +103,8 @@ export default function Dashboard() {
                     group_id: selectedGroup,
                     message,
                     scheduled_time: new Date(scheduledTime).toISOString(),
+                    use_ai: useAI,
+                    media_url: mediaUrls,
                 }),
             });
 
@@ -236,6 +242,31 @@ export default function Dashboard() {
                                     className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 h-32 resize-none"
                                     required
                                 />
+                                <p className="text-xs text-slate-500 mt-1">Soporta Spintax: {"{Hola|Saludos} {amigo|colega}"}</p>
+                            </div>
+
+                            <div className="flex items-center gap-3 bg-slate-700/50 p-3 rounded-lg border border-slate-600">
+                                <input
+                                    type="checkbox"
+                                    id="useAI"
+                                    checked={useAI}
+                                    onChange={(e) => setUseAI(e.target.checked)}
+                                    className="w-5 h-5 rounded border-slate-500 text-blue-600 focus:ring-blue-500 bg-slate-700"
+                                />
+                                <label htmlFor="useAI" className="text-sm font-medium cursor-pointer">
+                                    ✨ Activar Respuesta con IA (Gemini)
+                                </label>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Media URL (Opcional)</label>
+                                <input
+                                    type="url"
+                                    placeholder="https://example.com/image.jpg"
+                                    value={mediaUrls}
+                                    onChange={(e) => setMediaUrls(e.target.value)}
+                                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                                />
                             </div>
 
                             <div>
@@ -288,10 +319,10 @@ export default function Dashboard() {
                                             <td className="p-3">
                                                 <span
                                                     className={`px-3 py-1 rounded text-xs font-bold ${s.status === 'posted'
-                                                            ? 'bg-green-900 text-green-200'
-                                                            : s.status === 'failed'
-                                                                ? 'bg-red-900 text-red-200'
-                                                                : 'bg-yellow-900 text-yellow-200'
+                                                        ? 'bg-green-900 text-green-200'
+                                                        : s.status === 'failed'
+                                                            ? 'bg-red-900 text-red-200'
+                                                            : 'bg-yellow-900 text-yellow-200'
                                                         }`}
                                                 >
                                                     {s.status === 'posted'

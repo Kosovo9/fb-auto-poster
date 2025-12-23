@@ -21,7 +21,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
     try {
-        const { group_id, message, scheduled_time } = await req.json();
+        const { group_id, message, scheduled_time, use_ai, media_url } = await req.json();
 
         if (!group_id || !message || !scheduled_time) {
             return NextResponse.json(
@@ -32,7 +32,14 @@ export async function POST(req: NextRequest) {
 
         const { data, error } = await supabase
             .from('schedules')
-            .insert([{ group_id, message, scheduled_time, status: 'pending' }])
+            .insert([{
+                group_id,
+                message,
+                scheduled_time,
+                status: 'pending',
+                use_ai: use_ai || false,
+                media_url: media_url || null
+            }])
             .select();
 
         if (error) throw error;
