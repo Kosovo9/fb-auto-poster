@@ -43,27 +43,36 @@ export function MediaUploader({ onUpload }: MediaUploaderProps) {
     }
 
     return (
-        <div className="border-2 border-dashed border-slate-600 rounded-xl p-6 bg-slate-800/50 hover:border-blue-500/50 transition-colors group">
-            <input
-                type="file"
-                multiple
-                accept="image/*,video/*"
-                onChange={handleUpload}
-                disabled={uploading}
-                className="block w-full text-sm text-slate-400
-          file:mr-4 file:py-2 file:px-4
-          file:rounded-full file:border-0
-          file:text-sm file:font-semibold
-          file:bg-blue-500 file:text-white
-          hover:file:bg-blue-600
-          cursor-pointer disabled:opacity-50"
-            />
-            <div className="mt-4 flex items-center justify-between">
-                <p className="text-xs text-slate-500 uppercase font-medium">
-                    Formatos: JPEG, PNG, WebP, MP4 (máx 50MB)
-                </p>
+        <div className="space-y-4">
+            <div
+                className={`border-4 border-dashed rounded-[2rem] p-10 transition-all duration-500 group relative overflow-hidden ${uploading ? 'border-blue-500 bg-blue-500/5 cursor-wait' : 'border-slate-800 bg-slate-900/40 hover:border-blue-500/30 hover:bg-slate-800/60'
+                    }`}
+            >
+                <input
+                    type="file"
+                    multiple
+                    accept="image/*,video/*"
+                    onChange={handleUpload}
+                    disabled={uploading}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+
+                <div className="text-center relative z-0">
+                    <div className="w-16 h-16 bg-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="12 4v16m8-8H4" />
+                        </svg>
+                    </div>
+                    <p className="text-lg font-black text-white mb-2 uppercase tracking-tighter">
+                        {uploading ? 'SUBIENDO...' : 'ARRASTRA TUS MEDIOS AQUÍ'}
+                    </p>
+                    <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">
+                        O haz click para seleccionar (Máx 50MB)
+                    </p>
+                </div>
+
                 {uploading && (
-                    <span className="text-xs text-blue-400 animate-pulse font-bold">Subiendo archivos...</span>
+                    <div className="absolute bottom-0 left-0 h-1 bg-blue-500 animate-progress-indefinite w-full"></div>
                 )}
             </div>
 

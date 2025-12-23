@@ -1,29 +1,27 @@
 export function generateSpintaxVariations(
     baseMessage: string,
-    count: number = 5
+    count: number = 50
 ): string[] {
-    // Regex para encontrar {opción1|opción2|opción3}
     const spintaxRegex = /{[^}]+}/g;
-
     const variations: Set<string> = new Set();
 
-    // Si no hay spintax, retornar el mensaje original
     if (!baseMessage.includes('{')) {
         return [baseMessage];
     }
 
-    while (variations.size < count) {
+    // Attempt to generate up to 'count' variations
+    // Limit iterations to prevent infinite loops if complexity is low
+    let iterations = 0;
+    while (variations.size < count && iterations < count * 10) {
         let variation = baseMessage;
-
-        // Reemplazar cada {x|y|z} con una opción aleatoria
         variation = variation.replace(spintaxRegex, (match) => {
             const options = match
-                .slice(1, -1) // Remover { y }
+                .slice(1, -1)
                 .split("|");
             return options[Math.floor(Math.random() * options.length)];
         });
-
         variations.add(variation);
+        iterations++;
     }
 
     return Array.from(variations);

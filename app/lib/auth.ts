@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { SignJWT, jwtVerify } from 'jose';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-123';
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'nuclear_secret_123');
 
 export async function hashPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);
@@ -12,13 +12,18 @@ export async function comparePassword(password: string, hash: string): Promise<b
     return bcrypt.compare(password, hash);
 }
 
-export function generateToken(payload: any): string {
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+export async function generateToken(payload: any): Promise<string> {
+    return await new SignJWT(payload)
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime('7d')
+        .sign(JWT_SECRET);
 }
 
-export function verifyToken(token: string): any {
+export async function verifyToken(token: string): Promise<any> {
     try {
-        return jwt.verify(token, JWT_SECRET);
+        const { payload } = await jwtVerify(token, JWT_SECRET);
+        return payload;
     } catch (error) {
         return null;
     }

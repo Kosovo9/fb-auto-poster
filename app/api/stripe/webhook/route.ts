@@ -31,26 +31,42 @@ export async function POST(req: NextRequest) {
             const userId = session.client_reference_id;
             const customerId = session.customer as string;
             const subscriptionId = session.subscription as string;
+            const amountTotal = session.amount_total || 0;
 
             if (userId) {
-                // Update user with subscription info
-                await supabase
+                let planName = 'professional';
+                if (amountTotal >= 29900) planName = 'enterprise';
+                else if (amountTotal >= 9900) planName = 'business';
+
+                const { data: userUpdate } = await supabase
                     .from('users')
                     .update({
                         stripe_customer_id: customerId,
                         stripe_subscription_id: subscriptionId,
-                        plan: 'premium' // Default premium on success
+                        plan: planName
                     })
-                    .eq('id', userId);
+                    .eq('id', userId)
+                    .select('referred_by')
+                    .single();
 
-                // Track in subscriptions table
+                if (userUpdate?.referred_by) {
+                    const commission = Math.floor(amountTotal * 0.25);
+                    await supabase
+                        .from('referrals')
+                        .insert([{
+                            referrer_id: userUpdate.referred_by,
+                            referred_id: userId,
+                            commission_amount: commission
+                        }]);
+                }
+
                 await supabase
                     .from('subscriptions')
                     .insert([{
                         user_id: userId,
                         stripe_id: subscriptionId,
                         status: 'active',
-                        plan: 'premium'
+                        plan: planName
                     }]);
             }
             break;
