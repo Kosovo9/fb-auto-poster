@@ -36,7 +36,7 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const [analytics, setAnalytics] = useState({ total_posts: 0, success_rate: 0, pending: 0 });
+    const [_analytics, setAnalytics] = useState({ total_posts: 0, success_rate: 0, pending: 0 });
     const [spintaxTemplate, setSpintaxTemplate] = useState('');
 
     useEffect(() => {
@@ -57,21 +57,8 @@ export default function Dashboard() {
                 const data = await res.json();
                 setAnalytics(data);
             }
-        } catch (e) {
+        } catch (_e) {
             console.error('Error fetching analytics');
-        }
-    }
-
-    async function handleUpgrade() {
-        try {
-            setLoading(true);
-            const res = await fetch('/api/checkout', { method: 'POST' });
-            const data = await res.json();
-            if (data.url) window.location.href = data.url;
-        } catch (error) {
-            setError('Error initiating checkout');
-        } finally {
-            setLoading(false);
         }
     }
 
@@ -81,7 +68,7 @@ export default function Dashboard() {
             if (!res.ok) throw new Error('Failed to fetch groups');
             const data = await res.json();
             setGroups(data || []);
-        } catch (err) {
+        } catch (_err) {
             setError('Error fetching groups');
         }
     }
@@ -92,7 +79,7 @@ export default function Dashboard() {
             if (!res.ok) throw new Error('Failed to fetch schedules');
             const data = await res.json();
             setSchedules(data || []);
-        } catch (err) {
+        } catch (_err) {
             setError('Error fetching schedules');
         }
     }
@@ -116,7 +103,7 @@ export default function Dashboard() {
             setGroupName('');
             setSuccess('✅ Grupo agregado exitosamente');
             fetchGroups();
-        } catch (err) {
+        } catch (_err) {
             setError('❌ Error al agregar grupo');
         } finally {
             setLoading(false);
@@ -159,7 +146,7 @@ export default function Dashboard() {
             setMediaUrls('');
             setSuccess('📅 Posteo programado exitosamente');
             fetchSchedules();
-        } catch (err) {
+        } catch (_err) {
             setError('❌ Error al programar posteo');
         } finally {
             setLoading(false);

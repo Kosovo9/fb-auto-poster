@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
 interface MediaUploaderProps {
     onUpload: (url: string) => void;
@@ -76,10 +77,13 @@ export function MediaUploader({ onUpload, userId }: MediaUploaderProps) {
                     <div className="flex gap-2 flex-wrap">
                         {uploadedFiles.map((url, i) => (
                             <div key={i} className="relative group">
-                                <img
+                                <Image
                                     src={url}
                                     alt="Uploaded"
+                                    width={80}
+                                    height={80}
                                     className="w-20 h-20 object-cover rounded border border-slate-600"
+                                    unoptimized
                                 />
                                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
                                     <span className="text-green-400 text-xs">✓</span>

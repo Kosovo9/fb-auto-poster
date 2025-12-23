@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
 import { processSpintax } from './spintax';
-import { analyzeComment, generateAIResponse } from './ai-responder';
+import { generateAIResponse } from './ai-responder';
 
 interface PostOptions {
     groupUrl: string;
@@ -16,7 +16,7 @@ export async function postToFacebookGroup({
     groupUrl,
     message,
     sessionPath = '.fb-session.json',
-    mediaUrls = [],
+    mediaUrls: _mediaUrls = [],
     useAI = false,
 }: PostOptions) {
     let browser;
