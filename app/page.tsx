@@ -33,13 +33,43 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [analytics, setAnalytics] = useState({ total_posts: 0, success_rate: 0, pending: 0 });
 
     useEffect(() => {
         fetchGroups();
         fetchSchedules();
-        const interval = setInterval(fetchSchedules, 30000);
+        fetchAnalytics();
+        const interval = setInterval(() => {
+            fetchSchedules();
+            fetchAnalytics();
+        }, 30000);
         return () => clearInterval(interval);
     }, []);
+
+    async function fetchAnalytics() {
+        try {
+            const res = await fetch('/api/analytics');
+            if (res.ok) {
+                const data = await res.json();
+                setAnalytics(data);
+            }
+        } catch (e) {
+            console.error('Error fetching analytics');
+        }
+    }
+
+    async function handleUpgrade() {
+        try {
+            setLoading(true);
+            const res = await fetch('/api/checkout', { method: 'POST' });
+            const data = await res.json();
+            if (data.url) window.location.href = data.url;
+        } catch (error) {
+            setError('Error initiating checkout');
+        } finally {
+            setLoading(false);
+        }
+    }
 
     async function fetchGroups() {
         try {
@@ -147,6 +177,33 @@ export default function Dashboard() {
                         {success}
                     </div>
                 )}
+
+                {/* Sección 0: Analytics & Premium */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                    <div className="bg-slate-800 p-6 rounded-lg border border-slate-700 text-center">
+                        <h3 className="text-slate-400 text-sm font-bold uppercase">Total Posteos</h3>
+                        <p className="text-4xl font-bold text-white mt-2">{analytics.total_posts}</p>
+                    </div>
+                    <div className="bg-slate-800 p-6 rounded-lg border border-slate-700 text-center">
+                        <h3 className="text-slate-400 text-sm font-bold uppercase">Tasa de Éxito</h3>
+                        <p className="text-4xl font-bold text-green-400 mt-2">{analytics.success_rate}%</p>
+                    </div>
+                    <div className="bg-slate-800 p-6 rounded-lg border border-slate-700 text-center">
+                        <h3 className="text-slate-400 text-sm font-bold uppercase">Pendientes</h3>
+                        <p className="text-4xl font-bold text-yellow-400 mt-2">{analytics.pending}</p>
+                    </div>
+                    <div className="bg-gradient-to-br from-purple-900 to-indigo-900 p-6 rounded-lg border border-purple-500 text-center relative overflow-hidden group">
+                        <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <h3 className="text-purple-200 text-sm font-bold uppercase">Versión PRO</h3>
+                        <p className="text-lg text-white mt-2 mb-3">IA + Analytics Avanzado</p>
+                        <button
+                            onClick={handleUpgrade}
+                            className="bg-white text-purple-900 font-bold py-2 px-4 rounded-full text-sm hover:scale-105 transition-transform"
+                        >
+                            🚀 Mejorar Plan ($19)
+                        </button>
+                    </div>
+                </div>
 
                 {/* Main Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
