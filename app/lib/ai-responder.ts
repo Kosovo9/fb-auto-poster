@@ -1,34 +1,74 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || "");
 
-export async function generateAIResponse(context: string, tone: 'professional' | 'casual' | 'sales' = 'casual') {
+interface CommentAnalysis {
+    isLegit: boolean;
+    score: number; // 0-100
+    type: "price" | "features" | "location" | "contact" | "spam" | "other";
+    suggestedResponse: string;
+}
+
+export async function analyzeComment(
+    comment: string,
+    vehicleInfo: { name: string; price: string; year: string; whatsapp: string }
+): Promise<CommentAnalysis> {
     if (!process.env.GOOGLE_AI_API_KEY) {
-        console.warn('GOOGLE_AI_API_KEY is not set. Returning fallback.');
-        return "Thanks for the info! (AI Key missing)";
+        return {
+            isLegit: false,
+            score: 0,
+            type: "other",
+            suggestedResponse: "AI Key missing",
+        };
     }
 
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // Updated model name
 
-        let prompt = `You are a helpful Facebook group member. Write a short, engaging comment in response to the following post content.
-    
-    Context/Post Content: "${context}"
-    
-    Tone: ${tone}
-    Language: Spanish (Mexico)
-    Length: Under 280 characters.
-    Restrictions: No hashtags, no emojis overkill, look organic.`;
+        const prompt = `Analiza este comentario en un grupo de venta de autos:
+COMENTARIO: "${comment}"
 
-        if (tone === 'sales') {
-            prompt += ' Include a subtle call to action.';
-        }
+INFORMACIÓN DEL AUTO:
+Modelo: ${vehicleInfo.name}
+Precio: ${vehicleInfo.price}
+Año: ${vehicleInfo.year}
+WhatsApp: ${vehicleInfo.whatsapp}
+
+TAREA:
+¿Es un cliente potencial real o spam? (0-100 score)
+¿Qué tipo de pregunta es? (price/features/location/contact/spam/other)
+Genera una respuesta automática amable y profesional
+
+RESPONDE EN JSON PURO:
+{
+"isLegit": true/false,
+"score": 85,
+"type": "price",
+"suggestedResponse": "Tu respuesta aquí"
+}`;
 
         const result = await model.generateContent(prompt);
-        const response = result.response;
-        return response.text().trim();
+        const text = result.response.text();
+
+        // Parse JSON response
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error("Invalid response format");
+
+        const parsed = JSON.parse(jsonMatch[0]);
+
+        return {
+            isLegit: parsed.isLegit,
+            score: parsed.score,
+            type: parsed.type,
+            suggestedResponse: parsed.suggestedResponse,
+        };
     } catch (error) {
-        console.error('Error generating AI response:', error);
-        return "Interesante contenido! Gracias por compartir."; // Fallback
+        console.error("AI Responder error:", error);
+        return {
+            isLegit: false,
+            score: 0,
+            type: "other",
+            suggestedResponse: "Gracias por tu interés. Más detalles en WhatsApp.",
+        };
     }
 }
