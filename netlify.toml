@@ -7,3 +7,23 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Redirects para SPA/SSR
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/___netlify-handler"
+  status = 200
+  force = false
+  conditions = {Role = ["admin"]}
+
+# Fallback para rutas estáticas
+[[redirects]]
+  from = "/_next/*"
+  to = "/_next/:splat"
+  status = 200
+
+# Rutas de API
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/___netlify-handler"
+  status = 200
