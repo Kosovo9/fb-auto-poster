@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Analytics } from './components/Analytics';
 import { MediaUploader } from './components/MediaUploader';
 import { generateSpintaxVariations } from './lib/spintax-generator';
@@ -27,6 +28,7 @@ interface Schedule {
 }
 
 export default function Dashboard() {
+    const [user, setUser] = useState<{ id: string, email: string, plan: string } | null>(null);
     const [groups, setGroups] = useState<Group[]>([]);
     const [schedules, setSchedules] = useState<Schedule[]>([]);
     const [groupUrl, setGroupUrl] = useState('');
@@ -36,17 +38,26 @@ export default function Dashboard() {
     const [scheduledTime, setScheduledTime] = useState('');
     const [useAI, setUseAI] = useState(false);
     const [mediaUrls, setMediaUrls] = useState<string[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [spintaxTemplate, setSpintaxTemplate] = useState('');
-
-    // Mocking userId for now - in production this would come from auth session
-    const userId = "user_debug_123";
+    const router = useRouter();
 
     useEffect(() => {
-        fetchGroups();
-        fetchSchedules();
+        // Simple check for auth - in a real app would use a context or useSWR
+        const init = async () => {
+            try {
+                // We don't have a /api/auth/me yet, but we can assume success if middleware passed
+                // For now, let's just fetch groups/schedules and handle 401
+                await Promise.all([fetchGroups(), fetchSchedules()]);
+            } catch (err) {
+                console.error("Init error", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        init();
         const interval = setInterval(() => {
             fetchSchedules();
         }, 30000);
@@ -56,6 +67,7 @@ export default function Dashboard() {
     async function fetchGroups() {
         try {
             const res = await fetch('/api/groups');
+            if (res.status === 401) return router.push('/login');
             if (res.ok) {
                 const data = await res.json();
                 setGroups(data || []);
@@ -68,6 +80,7 @@ export default function Dashboard() {
     async function fetchSchedules() {
         try {
             const res = await fetch('/api/schedules');
+            if (res.status === 401) return router.push('/login');
             if (res.ok) {
                 const data = await res.json();
                 setSchedules(data || []);
@@ -77,18 +90,24 @@ export default function Dashboard() {
         }
     }
 
+    async function handleLogout() {
+        // Clear cookie would be best done via API
+        document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        router.push('/login');
+    }
+
     async function handleSubscription(priceId: string) {
         setLoading(true);
         try {
             const response = await fetch('/api/checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ priceId, userId }),
+                body: JSON.stringify({ priceId }), // userId removed, handled by webhook/bridge
             });
             const { sessionId } = await response.json();
             const stripe = await stripePromise;
             if (stripe) {
-                await stripe.redirectToCheckout({ sessionId });
+                await (stripe as any).redirectToCheckout({ sessionId });
             }
         } catch (err) {
             console.error('Stripe error:', err);
@@ -145,8 +164,7 @@ export default function Dashboard() {
                     message: finalMessage,
                     scheduled_time: new Date(scheduledTime).toISOString(),
                     use_ai: useAI,
-                    media_url: mediaUrls[0] || '', // Compatible with v2 schema
-                    user_id: userId
+                    media_url: mediaUrls[0] || ''
                 }),
             });
 
@@ -197,7 +215,7 @@ export default function Dashboard() {
                 {success && <div className="mb-6 p-4 bg-green-500/10 border border-green-500/50 rounded-2xl text-green-200 backdrop-blur-md animate-fade-in">{success}</div>}
 
                 {/* Real-time Analytics Component */}
-                <Analytics userId={userId} />
+                <Analytics />
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
 
@@ -307,7 +325,7 @@ export default function Dashboard() {
 
                                 <div className="space-y-4">
                                     <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1 px-1">Media (Fotos/Videos)</label>
-                                    <MediaUploader userId={userId} onUpload={(url) => setMediaUrls([...mediaUrls, url])} />
+                                    <MediaUploader onUpload={(url) => setMediaUrls([...mediaUrls, url])} />
                                 </div>
 
                                 <div className="flex flex-col md:flex-row gap-4 items-center justify-between pt-4 border-t border-slate-700/50">
@@ -350,8 +368,8 @@ export default function Dashboard() {
                                         <td className="p-6 text-center text-slate-500 text-xs">{new Date(s.scheduled_time).toLocaleString()}</td>
                                         <td className="p-6 text-center">
                                             <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter ${s.status === 'posted' ? 'bg-green-500/20 text-green-400' :
-                                                    s.status === 'failed' ? 'bg-red-500/20 text-red-400' :
-                                                        'bg-yellow-500/20 text-yellow-400'
+                                                s.status === 'failed' ? 'bg-red-500/20 text-red-400' :
+                                                    'bg-yellow-500/20 text-yellow-400'
                                                 }`}>
                                                 {s.status}
                                             </span>

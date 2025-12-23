@@ -1,9 +1,16 @@
 import { supabase } from '../../lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
     try {
-        const { data, error } = await supabase.from('groups').select('*');
+        const userId = req.headers.get('x-user-id');
+        if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+        const { data, error } = await supabase
+            .from('groups')
+            .select('*')
+            .eq('user_id', userId);
+
         if (error) throw error;
         return NextResponse.json(data || []);
     } catch (error) {
@@ -17,6 +24,9 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
     try {
+        const userId = req.headers.get('x-user-id');
+        if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
         const { url, name } = await req.json();
 
         if (!url || !name) {
@@ -28,7 +38,7 @@ export async function POST(req: NextRequest) {
 
         const { data, error } = await supabase
             .from('groups')
-            .insert([{ url, name }])
+            .insert([{ url, name, user_id: userId }])
             .select();
 
         if (error) throw error;

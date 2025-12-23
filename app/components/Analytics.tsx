@@ -10,16 +10,19 @@ interface AnalyticsData {
     engagementRate: number;
 }
 
-export function Analytics({ userId }: { userId: string }) {
+export function Analytics({ userId }: { userId?: string }) {
     const [stats, setStats] = useState<AnalyticsData | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function fetchAnalytics() {
             try {
-                const res = await fetch(`/api/analytics?userId=${userId}`);
-                const data = await res.json();
-                setStats(data);
+                // Fetch without params, let middleware handle identity
+                const res = await fetch(`/api/analytics`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setStats(data);
+                }
             } catch (error) {
                 console.error('Failed to fetch analytics:', error);
             } finally {
@@ -27,12 +30,10 @@ export function Analytics({ userId }: { userId: string }) {
             }
         }
 
-        if (userId) {
-            fetchAnalytics();
-            const interval = setInterval(fetchAnalytics, 30000); // Actualizar cada 30 seg
-            return () => clearInterval(interval);
-        }
-    }, [userId]);
+        fetchAnalytics();
+        const interval = setInterval(fetchAnalytics, 30000); // Actualizar cada 30 seg
+        return () => clearInterval(interval);
+    }, []);
 
     if (loading) return <div className="text-slate-400">Cargando analytics...</div>;
     if (!stats) return <div className="text-red-400">Error cargando datos</div>;

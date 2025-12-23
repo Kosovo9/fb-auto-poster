@@ -10,3 +10,6 @@ dist/
 .DS_Store
 auth.json
 .fb-session.json
+
+12.22.2025.env
+fb-auto-poster-backups/

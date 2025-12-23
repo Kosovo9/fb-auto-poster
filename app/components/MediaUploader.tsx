@@ -4,10 +4,9 @@ import { useState } from 'react';
 
 interface MediaUploaderProps {
     onUpload: (url: string) => void;
-    userId: string;
 }
 
-export function MediaUploader({ onUpload, userId }: MediaUploaderProps) {
+export function MediaUploader({ onUpload }: MediaUploaderProps) {
     const [uploading, setUploading] = useState(false);
     const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
 
@@ -20,7 +19,7 @@ export function MediaUploader({ onUpload, userId }: MediaUploaderProps) {
         for (const file of Array.from(files)) {
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('userId', userId);
+            // userId removed from form data, handled server-side via cookie
 
             try {
                 const res = await fetch('/api/upload', {
