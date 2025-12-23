@@ -72,3 +72,26 @@ RESPONDE EN JSON PURO:
         };
     }
 }
+
+// Simple AI response generator for posts (not comments)
+export async function generateAIResponse(context: string, tone: string = 'casual'): Promise<string> {
+    if (!process.env.GOOGLE_AI_API_KEY) {
+        return context; // Return original if no API key
+    }
+
+    try {
+        const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const prompt = `Mejora este mensaje para Facebook de manera ${tone}. Hazlo más atractivo y engagement-friendly. Mantén el mensaje corto (máximo 2-3 líneas). Solo responde con el mensaje mejorado, sin explicaciones:
+
+"${context}"`;
+
+        const result = await model.generateContent(prompt);
+        const text = result.response.text();
+        return text.trim() || context;
+    } catch (error) {
+        console.error("AI Response error:", error);
+        return context; // Return original on error
+    }
+}

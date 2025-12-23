@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
 import { processSpintax } from './spintax';
-import { generateAIResponse } from './ai-responder';
+import { analyzeComment, generateAIResponse } from './ai-responder';
 
 interface PostOptions {
     groupUrl: string;
