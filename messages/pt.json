@@ -1,0 +1,69 @@
+{
+    "common": {
+        "loading": "Carregando...",
+        "error": "Erro",
+        "success": "Sucesso",
+        "save": "Salvar",
+        "cancel": "Cancelar",
+        "settings": "Configurações",
+        "disclaimer": "O FB Auto Poster é uma ferramenta de automação independente e não é endossada, certificada ou mantida pela Meta Platforms Inc. Facebook™ e Facebook Groups™ são marcas registradas da Meta. O uso deste software é por sua conta e risco; sempre cumpra os Termos de Serviço e as Normas da Comunidade do Facebook. Não armazenamos sua senha do Facebook: a autenticación se realiza a través de las APIs oficiales de Facebook o sesiones de navegador bajo tu control total. Os resultados podem variar conforme a saúde da conta, qualidade do conteúdo e alterações no algoritmo da plataforma."
+    },
+    "auth": {
+        "welcome": "BEM-VINDO",
+        "signIn": "Entrar",
+        "signUp": "Cadastrar",
+        "email": "Email",
+        "password": "Senha",
+        "loggingIn": "ENTRANDO...",
+        "signingUp": "CRIANDO CONTA...",
+        "noAccount": "Não tem conta?",
+        "hasAccount": "Já tem cuenta?",
+        "registerNow": "Cadastre-se agora",
+        "loginNow": "Entrar",
+        "enterDashboard": "ACESSAR DASHBOARD",
+        "pressEnter": "Pressione ENTER para enviar"
+    },
+    "dashboard": {
+        "title": "DASHBOARD PRO",
+        "welcome": "Bem-vindo, {name}",
+        "posts": "Envios",
+        "impacts": "Impactos",
+        "conversions": "Vendas",
+        "revenue": "Receita Est.",
+        "dominance": "Domínio",
+        "scheduled": "Agendado",
+        "published": "Publicado",
+        "groupsManagement": "Gestão de Grupos",
+        "addGroup": "＋ Adicionar Grupo",
+        "groupName": "Nome do Grupo",
+        "groupUrl": "URL do Grupo",
+        "adding": "Adicionando...",
+        "schedulePost": "Agendador Mestre",
+        "selectGroup": "Selecione um grupo",
+        "dateTime": "Data e Hora",
+        "spintaxContent": "Conteúdo Spintax",
+        "previewMessage": "Visualização da Mensagem",
+        "mediaUpload": "Mídia (Fotos/Vídeos)",
+        "useAI": "✨ IA Reactor Ativo",
+        "scheduleNow": "🚀 LANÇAR POST",
+        "scheduling": "PROCESSANDO...",
+        "operationsLog": "📊 Registro de Operações",
+        "roiEstimator": "ROI Estimado Quantum",
+        "nuclearMode": "🚀 MODO NUCLEAR DESBLOQUEADO",
+        "upgradeElite": "👑 OBTER ACESSO ELITE",
+        "dominateMarket": "DOMINAR MERCADO"
+    },
+    "pricing": {
+        "title": "Preços simples e transparentes",
+        "free": "Grátis",
+        "pro": "Pro",
+        "agency": "Agência",
+        "price": "{price, number, ::currency/USD}/mês"
+    },
+    "metadata": {
+        "home": {
+            "title": "FB Auto Poster – Automatize Grupos do Facebook",
+            "description": "Agende e poste automaticamente em grupos ilimitados do Facebook. Suporta spintax, imagens e análises completas."
+        }
+    }
+}

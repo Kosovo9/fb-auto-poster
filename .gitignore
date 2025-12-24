@@ -13,3 +13,7 @@ auth.json
 
 12.22.2025.env
 fb-auto-poster-backups/
+
+# Local Netlify folder
+.netlify
+set-secrets.ps1

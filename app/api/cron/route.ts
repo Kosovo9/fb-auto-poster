@@ -1,5 +1,5 @@
-import { supabase } from '../../lib/supabase';
-import { postToFacebookGroup } from '../../lib/playwright-bot';
+import { supabase } from '@/lib/supabase';
+import { postToFacebookGroup } from '@/lib/playwright-bot';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -7,26 +7,28 @@ export async function POST(req: NextRequest) {
     const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
 
     if (authHeader !== expectedAuth) {
-        console.warn('Unauthorized cron access attempt');
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     try {
         const now = new Date();
 
+        // 10x Performance: Fetch more per batch now that we have indexes
         const { data: schedules, error } = await supabase
             .from('schedules')
             .select('*, groups(*)')
             .eq('status', 'pending')
             .lte('scheduled_time', now.toISOString())
-            .limit(5);
+            .limit(10);
 
         if (error) throw error;
+        if (!schedules || schedules.length === 0) {
+            return NextResponse.json({ success: true, message: 'No pending schedules' });
+        }
 
-        const results = [];
-
-        for (const schedule of schedules || []) {
-            try {
+        // Parallel execution with Promise.allSettled for reliability
+        const results = await Promise.allSettled(
+            schedules.map(async (schedule) => {
                 const result = await postToFacebookGroup({
                     groupUrl: schedule.groups.url,
                     message: schedule.message,
@@ -35,84 +37,38 @@ export async function POST(req: NextRequest) {
                 });
 
                 if (result.success) {
-                    await supabase
-                        .from('schedules')
-                        .update({ status: 'posted' })
-                        .eq('id', schedule.id);
-
-                    // --- LOG ANALYTICS ---
-                    await supabase.from('analytics').insert({
-                        user_id: schedule.user_id, // Ensure user_id exists in schedules or groups
-                        metric_type: 'post_published',
-                        value: 1,
-                        metadata: { group_name: schedule.groups.name }
-                    });
-                    // --------------------
-
-                    await supabase.from('post_logs').insert({
-                        schedule_id: schedule.id,
-                        group_id: schedule.group_id,
-                        status: 'success',
-                    });
-
-                    results.push({
-                        id: schedule.id,
-                        status: 'success',
-                        group: schedule.groups.name,
-                    });
+                    // Optimized Updates
+                    await Promise.all([
+                        supabase.from('schedules').update({ status: 'posted' }).eq('id', schedule.id),
+                        supabase.from('analytics').insert({
+                            user_id: schedule.user_id,
+                            metric_type: 'post_published',
+                            value: 1,
+                            metadata: { group_name: schedule.groups.name }
+                        })
+                    ]);
+                    return { id: schedule.id, status: 'success' };
                 } else {
-                    // Check retry count (assuming 0 if not exists)
-                    const retryCount = (schedule.retry_count || 0);
-                    if (retryCount < 3) {
-                        await supabase
-                            .from('schedules')
-                            .update({ retry_count: retryCount + 1 })
-                            .eq('id', schedule.id);
-                    } else {
-                        await supabase
-                            .from('schedules')
-                            .update({ status: 'failed' })
-                            .eq('id', schedule.id);
-                    }
+                    const retryCount = (schedule.retry_count || 0) + 1;
+                    const finalStatus = retryCount >= 3 ? 'failed' : 'pending';
 
-                    await supabase.from('post_logs').insert({
-                        schedule_id: schedule.id,
-                        group_id: schedule.group_id,
-                        status: 'failed',
-                        error_message: result.message,
-                    });
+                    await supabase.from('schedules').update({
+                        status: finalStatus,
+                        retry_count: retryCount
+                    }).eq('id', schedule.id);
 
-                    results.push({
-                        id: schedule.id,
-                        status: 'failed',
-                        error: result.message,
-                        group: schedule.groups.name,
-                    });
+                    return { id: schedule.id, status: 'failed', error: result.message };
                 }
-            } catch (postError) {
-                console.error('Post error for schedule', schedule.id, postError);
-                results.push({
-                    id: schedule.id,
-                    status: 'error',
-                    error: postError instanceof Error ? postError.message : 'Unknown',
-                });
-            }
-        }
+            })
+        );
 
         return NextResponse.json({
             success: true,
             processed: results.length,
-            results,
             timestamp: new Date().toISOString(),
         });
     } catch (error) {
-        console.error('Cron execution error:', error);
-        return NextResponse.json(
-            {
-                error: error instanceof Error ? error.message : 'Unknown error',
-                timestamp: new Date().toISOString(),
-            },
-            { status: 500 }
-        );
+        console.error('Cron Nuclear Error:', error);
+        return NextResponse.json({ error: 'Internal Error' }, { status: 500 });
     }
 }

@@ -19,6 +19,9 @@
     "paths": {
       "@/*": [
         "./app/*"
+      ],
+      "@/i18n/*": [
+        "./i18n/*"
       ]
     },
     "moduleResolution": "bundler",

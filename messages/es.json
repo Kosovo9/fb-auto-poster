@@ -1,0 +1,103 @@
+{
+    "common": {
+        "loading": "Cargando...",
+        "error": "Error",
+        "success": "Éxito",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "settings": "Configuración",
+        "disclaimer": "FB Auto Poster es una herramienta de automatización independiente y no está respaldada, certificada ni mantenida por Meta Platforms Inc. Facebook™ y Facebook Groups™ son marcas comerciales de Meta. El uso de este software es bajo tu propia responsabilidad; cumple siempre con los Términos de Servicio y las Normas de la Comunidad de Facebook. No almacenamos tu contraseña de Facebook: la autenticación se realiza a través de las APIs oficiales de Facebook o sesiones de navegador bajo tu control total. Los resultados pueden variar según la salud de la cuenta, la calidad del contenido y los cambios en el algoritmo de la plataforma."
+    },
+    "auth": {
+        "welcome": "BIENVENIDO",
+        "signIn": "Iniciar sesión",
+        "signUp": "Registrarse",
+        "email": "Email",
+        "password": "Contraseña",
+        "loggingIn": "ACCEDIENDO...",
+        "signingUp": "CREANDO CUENTA...",
+        "noAccount": "¿No tienes cuenta?",
+        "hasAccount": "¿Ya tienes cuenta?",
+        "registerNow": "Regístrate ahora",
+        "loginNow": "Inicia sesión",
+        "enterDashboard": "ENTRAR AL DASHBOARD",
+        "pressEnter": "Presiona ENTER para enviar"
+    },
+    "dashboard": {
+        "title": "DASHBOARD PRO",
+        "welcome": "Bienvenido, {name}",
+        "posts": "Envíos",
+        "impacts": "Impactos",
+        "conversions": "Ventas",
+        "revenue": "Revenue Est.",
+        "dominance": "Dominio",
+        "scheduled": "Programado",
+        "published": "Publicado",
+        "groupsManagement": "Gestión de Grupos",
+        "addGroup": "＋ Agregar Grupo",
+        "groupName": "Nombre del Grupo",
+        "groupUrl": "URL del Grupo",
+        "adding": "Agregando...",
+        "schedulePost": "Programador Maestro",
+        "selectGroup": "Selecciona un grupo",
+        "dateTime": "Fecha y Hora",
+        "spintaxContent": "Contenido Spintax",
+        "previewMessage": "Preview del Mensaje",
+        "mediaUpload": "Media (Fotos/Videos)",
+        "useAI": "✨ IA Reactor Active",
+        "scheduleNow": "🚀 LANZAR POST",
+        "scheduling": "PROCESANDO...",
+        "operationsLog": "📊 Bitácora de Operaciones",
+        "roiEstimator": "ROI Estimado Quantum",
+        "nuclearMode": "🚀 MODO NUCLEAR DESBLOQUEADO",
+        "upgradeElite": "👑 OBTENER ACCESO ELITE",
+        "dominateMarket": "DOMINAR MERCADO"
+    },
+    "pricing": {
+        "title": "Precios simples y transparentes",
+        "professional": {
+            "name": "Profesional",
+            "tagline": "Alto rendimiento individual",
+            "feature1": "10 Grupos simultáneos",
+            "feature2": "Spintax (50 variaciones)",
+            "feature3": "Fotos/Videos HD",
+            "feature4": "Analíticas Básicas",
+            "cta": "Suscribirse Pro"
+        },
+        "business": {
+            "name": "Business",
+            "tagline": "El estándar de los líderes",
+            "feature1": "Grupos ILIMITADOS",
+            "feature2": "IA Auto-Reply (Gemini)",
+            "feature3": "Lead Extraction pro",
+            "feature4": "Soporte VIP 24/7",
+            "cta": "Dominar Mercado"
+        },
+        "enterprise": {
+            "name": "Enterprise",
+            "tagline": "Control total de red",
+            "feature1": "WhatsApp Automation",
+            "feature2": "Broadcast Masivo",
+            "feature3": "Referral Program (25%)",
+            "feature4": "Lead Extraction IA",
+            "cta": "Cerrar el Trato"
+        },
+        "monthly": "mes"
+    },
+    "landing": {
+        "hero": {
+            "status": "Estado: 100% Operativo – Quantum Edition",
+            "title1": "CONQUISTA EL",
+            "title2": "MERCADO REAL.",
+            "description": "Publicación automatizada, respuestas inteligentes con IA Gemini y extracción de leads premium.",
+            "footerTag": "Infraestructura cuántica diseñada para el dominio total.",
+            "rights": "Desarrollado por Antigravity Nuclear Mode 🚀 • Todos los derechos reservados"
+        }
+    },
+    "metadata": {
+        "home": {
+            "title": "FB Auto Poster – Automatiza Grupos de Facebook",
+            "description": "Programa y publica automáticamente en grupos ilimitados de Facebook. Soporta spintax, imágenes y analíticas completas."
+        }
+    }
+}

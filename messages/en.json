@@ -1,0 +1,103 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "save": "Save",
+        "cancel": "Cancel",
+        "settings": "Settings",
+        "disclaimer": "FB Auto Poster is an independent automation tool and is not endorsed, certified, or maintained by Meta Platforms Inc. Facebook™ and Facebook Groups™ are trademarks of Meta. Use of this software is at your own risk; always comply with Facebook’s Terms of Service and Community Standards. We do not store your Facebook password—authentication is performed through official Facebook APIs or browser sessions under your full control. Results may vary depending on account health, content quality, and platform algorithm changes."
+    },
+    "auth": {
+        "welcome": "WELCOME",
+        "signIn": "Sign in",
+        "signUp": "Sign up",
+        "email": "Email",
+        "password": "Password",
+        "loggingIn": "LOGGING IN...",
+        "signingUp": "CREATING ACCOUNT...",
+        "noAccount": "Don't have an account?",
+        "hasAccount": "Already have an account?",
+        "registerNow": "Register now",
+        "loginNow": "Log in",
+        "enterDashboard": "ENTER DASHBOARD",
+        "pressEnter": "Press ENTER to submit"
+    },
+    "dashboard": {
+        "title": "DASHBOARD PRO",
+        "welcome": "Welcome, {name}",
+        "posts": "Posts",
+        "impacts": "Impacts",
+        "conversions": "Conversions",
+        "revenue": "Est. Revenue",
+        "dominance": "Dominance",
+        "scheduled": "Scheduled",
+        "published": "Published",
+        "groupsManagement": "Groups Management",
+        "addGroup": "＋ Add Group",
+        "groupName": "Group Name",
+        "groupUrl": "Group URL",
+        "adding": "Adding...",
+        "schedulePost": "Master Scheduler",
+        "selectGroup": "Select a group",
+        "dateTime": "Date and Time",
+        "spintaxContent": "Spintax Content",
+        "previewMessage": "Message Preview",
+        "mediaUpload": "Media (Photos/Videos)",
+        "useAI": "✨ IA Reactor Active",
+        "scheduleNow": "🚀 LAUNCH POST",
+        "scheduling": "PROCESSING...",
+        "operationsLog": "📊 Operations Log",
+        "roiEstimator": "Estimated ROI Quantum",
+        "nuclearMode": "🚀 NUCLEAR MODE UNLOCKED",
+        "upgradeElite": "👑 GET ELITE ACCESS",
+        "dominateMarket": "DOMINATE MARKET"
+    },
+    "pricing": {
+        "title": "Simple, transparent pricing",
+        "professional": {
+            "name": "Professional",
+            "tagline": "High individual performance",
+            "feature1": "10 Simultaneous Groups",
+            "feature2": "Spintax (50 variations)",
+            "feature3": "HD Photos/Videos",
+            "feature4": "Basic Analytics",
+            "cta": "Subscribe Pro"
+        },
+        "business": {
+            "name": "Business",
+            "tagline": "The standard of leaders",
+            "feature1": "UNLIMITED Groups",
+            "feature2": "AI Auto-Reply (Gemini)",
+            "feature3": "Pro Lead Extraction",
+            "feature4": "24/7 VIP Support",
+            "cta": "Dominate Market"
+        },
+        "enterprise": {
+            "name": "Enterprise",
+            "tagline": "Total network control",
+            "feature1": "WhatsApp Automation",
+            "feature2": "Mass Broadcast",
+            "feature3": "Referral Program (25%)",
+            "feature4": "AI Lead Extraction",
+            "cta": "Close the Deal"
+        },
+        "monthly": "month"
+    },
+    "landing": {
+        "hero": {
+            "status": "Status: 100% Operational – Quantum Edition",
+            "title1": "CONQUER THE",
+            "title2": "REAL MARKET.",
+            "description": "Automated posting, intelligent responses with AI Gemini and premium lead extraction.",
+            "footerTag": "Quantum infrastructure designed for total dominance.",
+            "rights": "Developed by Antigravity Nuclear Mode 🚀 • All Rights Reserved"
+        }
+    },
+    "metadata": {
+        "home": {
+            "title": "FB Auto Poster – Automate Facebook Groups",
+            "description": "Schedule and auto-post to unlimited Facebook groups in seconds. Supports spintax, images, and full analytics."
+        }
+    }
+}
