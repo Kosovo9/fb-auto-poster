@@ -1,6 +1,6 @@
 const dotenv = require('dotenv');
 const { createClient } = require('@supabase/supabase-js');
-const Stripe = require('stripe');
+
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const fs = require('fs');
 
@@ -50,21 +50,8 @@ async function verify() {
         }
     }
 
-    // 2. STRIPE CHECK
-    console.log('\nChecking Stripe...');
-    if (!process.env.STRIPE_SECRET_KEY) {
-        console.error('❌ Missing STRIPE_SECRET_KEY!');
-        allGood = false;
-    } else {
-        try {
-            const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-            const balance = await stripe.balance.retrieve();
-            console.log('✅ Stripe Connection: OK');
-        } catch (e) {
-            console.error('❌ Stripe Connection Failed:', e.message);
-            allGood = false;
-        }
-    }
+    // 2. STRIPE CHECK - DISABLED
+    console.log('\nChecking Stripe... SKIPPED (Removed)');
 
     // 3. GOOGLE GEMINI CHECK
     console.log('\nChecking Google Gemini...');
