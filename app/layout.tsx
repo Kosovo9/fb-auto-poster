@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Providers } from './providers';
 
 export const metadata: Metadata = {
     title: 'Facebook Auto-Poster',
@@ -12,11 +13,13 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="es">
+        <html lang="es" suppressHydrationWarning>
             <body>
-                <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
-                    {children}
-                </div>
+                <Providers>
+                    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
+                        {children}
+                    </div>
+                </Providers>
             </body>
         </html>
     );

@@ -87,7 +87,7 @@ export default function LandingPage() {
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-blue-500/10 blur-[120px] rounded-full -z-10"></div>
                 <div className="max-w-5xl mx-auto text-center">
                     <div className="inline-block bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full mb-8">
-                        Vende 5x más rápido hoy mismo • 30 Días de Garantía
+                        Vende 5x más rápido hoy mismo • Acceso Instantáneo
                     </div>
                     <h1 className="text-6xl md:text-8xl font-black mb-8 leading-[0.9] tracking-tighter">
                         DOMINA CUALQUIER <br />
@@ -152,14 +152,6 @@ export default function LandingPage() {
                         ))}
                     </div>
 
-                    {/* Guarantee */}
-                    <div className="mt-20 text-center bg-slate-800/20 border border-white/5 p-8 rounded-[2rem] max-w-2xl mx-auto">
-                        <div className="flex items-center justify-center gap-4 mb-4">
-                            <span className="text-4xl">🛡️</span>
-                            <h4 className="text-xl font-black uppercase tracking-tight">Garantía de Satisfacción de 30 Días</h4>
-                        </div>
-                        <p className="text-slate-400 text-sm font-medium">Si no ves resultados en los primeros 30 días, te devolvemos tu dinero sin preguntas. Estamos tan seguros de que este sistema funciona.</p>
-                    </div>
                 </div>
             </section>
 
